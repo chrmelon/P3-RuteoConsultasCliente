@@ -21,8 +21,6 @@ import os
 import logging
 from typing import Literal
 
-import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_openai import ChatOpenAI
@@ -33,8 +31,6 @@ from src.agents.rrhh_agent import build_rrhh_node
 from src.agents.finanzas_agent import build_finanzas_node
 from src.agents.tech_agent import build_tech_node
 from src.state import AgentState
-
-sys.path.append(str(Path(__file__).resolve().parent.parent))
 
 load_dotenv()
 logger = logging.getLogger(__name__)

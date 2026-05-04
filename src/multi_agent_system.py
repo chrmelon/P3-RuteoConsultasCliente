@@ -15,11 +15,14 @@ Ejemplos:
 
 import argparse
 import sys
+from langchain_openai import ChatOpenAI
 from pathlib import Path
 from dotenv import load_dotenv
 from src.graph import build_graph
 from src.logger import get_logger
 from src.tracing import langfuse, observe
+from src.evaluator import evaluate_response
+from langfuse import get_client
 
 logger = get_logger(__name__)
 
@@ -65,6 +68,18 @@ def go():
         # El estado inicial solo necesita 'query', el resto lo van llenando los nodos
         result = graph.invoke({"query": query})
 
+        # ── Evaluación automática de calidad ──────────────────
+        trace_id = get_client().get_current_trace_id()
+
+        if result.get("response") and trace_id:
+            evaluate_response(
+                trace_id=trace_id,
+                query=query,
+                response=result["response"],
+                department=result.get("department", "unknown"),
+                llm=ChatOpenAI(model="gpt-4o-mini", temperature=0),
+            )
+        # ──────────────────────────────────────────────────────
 
     except Exception as e:
         logger.error(f"Error al ejecutar el grafo: {e}")

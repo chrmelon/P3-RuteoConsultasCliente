@@ -17,8 +17,9 @@
 9. [Ejemplos de Uso](#ejemplos-de-uso)
 10. [Suite de Tests](#suite-de-tests)
 11. [Observabilidad con Langfuse](#observabilidad-con-langfuse)
-12. [Notas de Configuración](#notas-de-configuración)
-13. [Limitaciones Conocidas](#limitaciones-conocidas)
+12. [Evaluador Automático de Calidad](#evaluador-automático-de-calidad)
+13. [Notas de Configuración](#notas-de-configuración)
+14. [Limitaciones Conocidas](#limitaciones-conocidas)
 
 ---
 
@@ -31,7 +32,8 @@ Este proyecto implementa un **sistema multi-agente** construido con LangGraph y 
 1. El usuario escribe una consulta en lenguaje natural.
 2. El **Agente Orquestador** analiza la consulta y decide a qué departamento pertenece.
 3. El **Agente Especialista** correspondiente responde usando su base de conocimiento RAG específica.
-4. Todo el flujo queda registrado en **Langfuse** para monitoreo y análisis.
+4. El **Evaluador Automático** puntúa la respuesta en 3 dimensiones de calidad (relevance, completeness, accuracy).
+5. Todo el flujo queda registrado en **Langfuse** para monitoreo y análisis.
 
 **Departamentos soportados:**
 
@@ -67,6 +69,15 @@ Usuario
           │
           ▼
       Respuesta final al usuario
+          │
+          ▼
+┌─────────────────────┐
+│ Evaluador de Calidad│  ← LLM-as-a-Judge (evaluator.py)
+│  (evaluator.py)     │    relevance | completeness | accuracy
+└─────────────────────┘
+          │
+          ▼
+     Langfuse (scores)
 ```
 
 **Stack tecnológico:**
@@ -75,8 +86,9 @@ Usuario
 - **LangChain** — Abstracción de LLMs y RAG
 - **OpenAI GPT-4o-mini** — Modelo de lenguaje principal
 - **ChromaDB** — Vector store local para el RAG
-- **Langfuse** — Observabilidad y trazabilidad
+- **Langfuse** — Observabilidad, trazabilidad y scores de calidad
 - **Pydantic** — Validación del output estructurado del orquestador
+- **LLM-as-a-Judge** — Evaluación automática de calidad de respuestas
 
 ---
 
@@ -101,6 +113,7 @@ P3-RuteoConsulasCliente/
 │   ├── graph.py                 # Ensamblado del grafo LangGraph
 │   ├── state.py                 # Estado compartido y modelo Pydantic
 │   ├── tracing.py               # Inicialización del cliente Langfuse
+│   ├── evaluator.py             # Evaluador automático de calidad (LLM-as-a-Judge)
 │   ├── build_index.py           # Script para construir los índices RAG
 │   ├── multi_agent_system.py    # Punto de entrada CLI
 │   ├── test_querys.py           # Runner de tests automatizados
@@ -215,7 +228,7 @@ OPENAI_MODEL=gpt-4o-mini
 3. Crear un proyecto nuevo
 4. Settings → API Keys → Create new key
 
-> ⚠️ **Importante:** Nunca subas el archivo `.env` a Git. Ya está incluido en `.gitignore`.
+> ⚠️ **Importante:** Nunca subir el archivo `.env` a Git. Ya está incluido en `.gitignore`.
 
 ---
 
@@ -392,6 +405,7 @@ El sistema registra automáticamente cada ejecución en Langfuse, incluyendo:
 - **Output** de cada agente (la respuesta o el departamento elegido)
 - **Metadata** con tags por tipo de agente
 - **Latencia** de cada llamada al LLM
+- **Scores de calidad** generados por el evaluador automático
 
 ### Ver las trazas
 
@@ -399,19 +413,95 @@ El sistema registra automáticamente cada ejecución en Langfuse, incluyendo:
 2. Seleccionar tu proyecto
 3. Ir a **Tracing** en el menú lateral
 
-Cada ejecución aparece como un span con el nombre del agente (`orchestrator`, `rrhh_agent`, `finanzas_agent`, `tech_agent`) y tambien hace trace de la consulta del usuario (`consulta_usuario`).
+Cada ejecución aparece como un span con el nombre del agente (`orchestrator`, `rrhh_agent`, `finanzas_agent`, `tech_agent`) y también hace trace de la consulta del usuario (`consulta_usuario`).
 
 ### Estructura de una traza completa
 
 ```
-📦 orchestrator          ← Clasifica la consulta
-    input:  {"query": "no puedo realizar el pago"}
-    output: {"department": "Finanzas", "reason": "..."}
-
-📦 finanzas_agent        ← Responde la consulta
-    input:  {"query": "no puedo realizar el pago"}
-    output: {"response": "Para resolver el problema..."}
+📦 consulta_usuario              ← Trace raíz (con scores de calidad)
+    accuracy:     1.00 ✅
+    completeness: 1.00 ✅
+    relevance:    1.00 ✅
+    │
+    ├── 📦 orchestrator          ← Clasifica la consulta
+    │       input:  {"query": "no puedo realizar el pago"}
+    │       output: {"department": "Finanzas", "reason": "..."}
+    │
+    └── 📦 finanzas_agent        ← Responde la consulta
+            input:  {"query": "no puedo realizar el pago"}
+            output: {"response": "Para resolver el problema..."}
 ```
+
+---
+
+## Evaluador Automático de Calidad
+
+El sistema incluye un evaluador **LLM-as-a-Judge** que analiza cada respuesta generada y le asigna puntajes de calidad automáticamente, sin intervención humana.
+
+### ¿Cómo funciona?
+
+Después de que el agente especialista genera su respuesta, el evaluador (`src/evaluator.py`) envía la consulta original y la respuesta a GPT-4o-mini con un prompt especializado que actúa como juez. El modelo devuelve un JSON con tres dimensiones de calidad y un razonamiento.
+
+```
+Consulta + Respuesta
+        │
+        ▼
+┌───────────────────┐
+│  GPT-4o-mini      │  ← Actúa como juez imparcial
+│  (LLM-as-a-Judge) │
+└───────────────────┘
+        │
+        ▼
+{ relevance, completeness, accuracy, reasoning }
+        │
+        ▼
+  langfuse.create_score()  ← Se registra en Langfuse
+```
+
+### Dimensiones evaluadas
+
+| Dimensión | Descripción | Rango |
+|---|---|---|
+| **relevance** | ¿La respuesta es relevante y responde lo que se preguntó? | 0.0 — 1.0 |
+| **completeness** | ¿La respuesta cubre todos los aspectos importantes? | 0.0 — 1.0 |
+| **accuracy** | ¿La respuesta parece correcta y sin información errónea? | 0.0 — 1.0 |
+
+### Ver los scores en Langfuse
+
+Los scores aparecen en el **trace raíz** (`consulta_usuario`), no en los spans hijos. Para verlos:
+
+1. Ir a **Tracing** → hacer clic en cualquier trace `consulta_usuario`
+2. Los scores aparecen visibles debajo del nombre del trace
+3. Para métricas agregadas, ir a **Scores** en el menú lateral izquierdo
+
+### Scores en el menú Scores
+
+El menú **Scores** de Langfuse muestra:
+- Promedio histórico de cada dimensión
+- Evolución en el tiempo
+- Distribución de puntajes (permite identificar respuestas de baja calidad)
+
+> 💡 **Tip:** Podés filtrar traces con `relevance < 0.6` para detectar respuestas problemáticas que necesiten revisión.
+
+### Archivo `src/evaluator.py`
+
+El evaluador está implementado como una función independiente que puede integrarse en cualquier punto del sistema:
+
+```python
+from src.evaluator import evaluate_response
+
+evaluate_response(
+    trace_id=trace_id,        # ID del trace de Langfuse
+    query=query,              # Consulta original del usuario
+    response=result["response"],  # Respuesta generada
+    department=result["department"],
+    llm=ChatOpenAI(model="gpt-4o-mini", temperature=0),
+)
+```
+
+### Limitación del evaluador
+
+El evaluador realiza **una llamada adicional al LLM** por cada consulta del sistema, lo que implica un costo extra de tokens de OpenAI. Para sistemas con alto volumen de consultas, considerar evaluar solo una muestra o en horarios de baja demanda.
 
 ---
 
@@ -464,4 +554,4 @@ Si las carpetas `data/hr_docs/`, `data/finance_docs/` o `data/tech_docs/` están
 El vector store se guarda en disco en la carpeta `chroma_db/`. No es una solución distribuida ni escalable para producción con múltiples usuarios simultáneos.
 
 ### 5. Costos de API de OpenAI
-Cada consulta realiza al menos 2 llamadas al LLM (orquestador + agente especialista). Con consultas frecuentes, los costos de API pueden crecer. Se recomienda monitorear el uso desde el dashboard de OpenAI.
+Cada consulta realiza al menos 3 llamadas al LLM: orquestador + agente especialista + evaluador de calidad. Con consultas frecuentes, los costos de API pueden crecer. Se recomienda monitorear el uso desde el dashboard de OpenAI.
