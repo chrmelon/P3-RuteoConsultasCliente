@@ -1,0 +1,33 @@
+langchain
+langgraph
+
+# OpenAI + embeddings
+openai
+langchain-openai
+tiktoken
+
+# Vector store
+langchain-chroma
+chromadb
+
+# Core LangChain
+langchain-community
+langchain-core
+
+# Configuración
+python-dotenv
+pydantic
+pyyaml
+
+# Observability 
+langfuse
+
+# Notebook 
+jupyter
+ipykernel
+
+# Testing
+pytest
+
+# Logging
+rich

@@ -1,0 +1,79 @@
+{
+  "test_queries": [
+    {
+      "query": "¿Cómo solicito vacaciones?",
+      "expected_department": "RRHH",
+      "description": "Consulta básica de RRHH"
+    },
+    {
+      "query": "¿Cuántos días de vacaciones tengo disponibles?",
+      "expected_department": "RRHH",
+      "description": "Consulta de beneficios laborales"
+    },
+    {
+      "query": "¿Cuál es la política de home office?",
+      "expected_department": "RRHH",
+      "description": "Consulta de políticas internas"
+    },
+    {
+      "query": "No puedo iniciar sesión en el sistema",
+      "expected_department": "Tech",
+      "description": "Problema técnico común"
+    },
+    {
+      "query": "El servidor de producción está caído",
+      "expected_department": "Tech",
+      "description": "Incidente crítico de infraestructura"
+    },
+    {
+      "query": "La aplicación está muy lenta, ¿qué puede estar pasando?",
+      "expected_department": "Tech",
+      "description": "Problema de performance"
+    },
+    {
+      "query": "No puedo realizar un pago",
+      "expected_department": "Finanzas",
+      "description": "Problema financiero básico"
+    },
+    {
+      "query": "¿Cómo se calculan los impuestos en mi factura?",
+      "expected_department": "Finanzas",
+      "description": "Consulta de facturación"
+    },
+    {
+      "query": "Detecté un cobro incorrecto en mi factura",
+      "expected_department": "Finanzas",
+      "description": "Caso de error financiero"
+    },
+    {
+      "query": "Necesito cambiar mis datos personales",
+      "expected_department": "RRHH",
+      "description": "Caso borde RRHH"
+    },
+    {
+      "query": "El sistema me tira error 500 al guardar datos",
+      "expected_department": "Tech",
+      "description": "Caso técnico con detalle"
+    },
+    {
+      "query": "Mi cuenta fue suspendida por falta de pago, ¿qué hago?",
+      "expected_department": "Finanzas",
+      "description": "Caso financiero crítico"
+    },
+    {
+      "query": "No sé a quién contactar para un problema interno",
+      "expected_department": "RRHH",
+      "description": "Caso ambiguo (default routing)"
+    },
+    {
+      "query": "Quiero saber cómo pedir un aumento de sueldo",
+      "expected_department": "RRHH",
+      "description": "Consulta HR no estructurada"
+    },
+    {
+      "query": "El sistema no responde y no puedo trabajar",
+      "expected_department": "Tech",
+      "description": "Caso urgente tecnológico"
+    }
+  ]
+}

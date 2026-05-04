@@ -1,0 +1,60 @@
+1. El acceso a sistemas críticos requiere autenticación multifactor (MFA) y dispositivo registrado.
+
+2. Las contraseñas deben cumplir complejidad y renovarse cada 90 días.
+
+3. El acceso a producción requiere aprobación del manager y del equipo de seguridad.
+
+4. El uso de VPN es obligatorio para conexiones fuera de la red corporativa.
+
+5. Los incidentes deben registrarse en el sistema de tickets con evidencia.
+
+6. Los logs deben retenerse por al menos 30 días para auditoría.
+
+7. El código fuente se gestiona en repositorios versionados con control de acceso.
+
+8. Los despliegues se realizan mediante pipelines CI/CD con validaciones automatizadas.
+
+9. Se aplica el principio de mínimo privilegio en la asignación de permisos.
+
+10. Las APIs deben documentarse y versionarse adecuadamente.
+
+11. Se deben aplicar parches de seguridad de forma periódica.
+
+12. El sistema utiliza SSO para autenticación centralizada.
+
+13. Se monitorean métricas y errores en tiempo real.
+
+14. Los accesos se auditan trimestralmente.
+
+15. Los incidentes críticos deben escalarse inmediatamente.
+
+16. Las cuentas inactivas se deshabilitan automáticamente.
+
+17. Se requiere cifrado en tránsito (HTTPS) para todos los servicios.
+
+18. Las claves y tokens se almacenan en vault seguro.
+
+19. Los accesos temporales deben tener fecha de expiración.
+
+20. Las pruebas automatizadas son obligatorias antes de cada deploy.
+
+21. Se debe documentar cada incidente crítico con post-mortem.
+
+22. El rollback debe estar disponible para cada release.
+
+23. Las dependencias deben mantenerse actualizadas.
+
+24. El acceso a bases de datos está restringido a roles específicos.
+
+25. Se monitorean accesos sospechosos y se generan alertas.
+
+26. Los endpoints sensibles requieren autenticación reforzada.
+
+27. Se realizan backups periódicos de la información.
+
+28. El equipo IT mantiene la infraestructura y herramientas.
+
+29. Las configuraciones se gestionan como código (IaC).
+
+30. El cumplimiento de seguridad es obligatorio para todos los equipos.
+

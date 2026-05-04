@@ -1,0 +1,60 @@
+1. El ciclo de facturación es mensual y se emite el último día del período.
+
+2. Las facturas se envían por correo electrónico y están disponibles en el portal.
+
+3. Los pagos deben realizarse antes de la fecha de vencimiento.
+
+4. Se aceptan pagos con tarjeta y transferencia bancaria.
+
+5. Los precios dependen del plan contratado.
+
+6. Los cambios de plan se prorratean en la siguiente factura.
+
+7. Se aplican impuestos según la región del cliente.
+
+8. Los errores de facturación deben reportarse a finanzas.
+
+9. El tiempo de respuesta es de 48 horas hábiles.
+
+10. Los pagos atrasados generan penalizaciones.
+
+11. Los reembolsos deben solicitarse dentro de 30 días.
+
+12. Los reembolsos requieren aprobación interna.
+
+13. Se procesan en el mismo método de pago.
+
+14. El tiempo de reembolso es de 5 a 10 días hábiles.
+
+15. No todos los servicios son reembolsables.
+
+16. Las suscripciones activas pueden no ser elegibles para reembolso.
+
+17. Se requiere motivo para solicitar reembolso.
+
+18. Los clientes reciben notificación por email.
+
+19. Se pueden guardar métodos de pago.
+
+20. Se pueden actualizar en cualquier momento.
+
+21. Los datos de pago no se almacenan directamente.
+
+22. Los recibos están disponibles en el portal.
+
+23. El soporte está disponible en horario laboral.
+
+24. Los pagos internacionales pueden tener cargos.
+
+25. Se generan reportes financieros periódicos.
+
+26. Las transacciones se auditan regularmente.
+
+27. Se aplican descuentos promocionales.
+
+28. Los planes tienen renovación automática.
+
+29. Se puede cancelar suscripción desde el portal.
+
+30. El control financiero es obligatorio.
+
